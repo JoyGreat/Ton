@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+gpuId=$1
+giver="kf8SYc83pm5JkGt0p3TQRkuiM58O9Cr3waUtR9OoFq716lN-"
+wallet="WALLET"
+dir="/home/user/ton"
+miner="$dir/tonlib-cuda-cli"
+[[ $2 == 'amd' ]] && miner="$dir/tonlib-opencl-cli"
+miner stop
+cd $dir
+$miner -c global.config.json -e "pminer start $giver $wallet $gpuId"

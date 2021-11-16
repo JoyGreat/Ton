@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+dir="/home/user/ton"
+cd $dir
+
+if [[ $1 == 'install' ]]; then
+	wget https://github.com/tontechio/pow-miner-gpu/releases/download/20211108-1/minertools-cuda-ubuntu-20.04-x86-64.tar.gz
+	wget https://github.com/tontechio/pow-miner-gpu/releases/download/20211108-1/minertools-opencl-ubuntu-20.04-x86-64.tar.gz
+
+	tar -xf minertools-cuda-ubuntu-20.04-x86-64.tar.gz
+	tar -xf minertools-opencl-ubuntu-20.04-x86-64.tar.gz
+	wget https://newton-blockchain.github.io/global.config.json
+	exit 0
+fi
+
+list=`cat /run/hive/gpu-detect.json`
+gpuCount=`echo $list | jq '[.[] | select(.brand != "I")] | length'`
+amdCount=0
+nvidiaCount=0
+for ((i=0; i < $gpuCount; i++)); do
+	gpu=`echo $list | jq ".[$i]"`
+	brand=`echo $gpu | jq -r ".brand"`
+	$dir/screen-kill ton.$i
+	if [[ $brand == "nvidia" ]]; then
+		echo "GPU $i: Start miner for Nvidia"
+		screen -dmS ton.$i bash -c "while true; do $dir/tonminer $i; sleep 3; done"
+		#tonminer $i > /dog/log/tonminer_gpu$i.log 2>&1 &
+		((nvidiaCount++))
+	else 
+		echo "GPU $i: Start miner for AMD"
+		screen -dmS ton.$i bash -c "while true; do $dir/tonminer $i amd; sleep 3; done"
+		#tonminer $i 'amd' > /dog/log/tonminer_gpu$i.log 2>&1 &
+		((amdCount++))
+	fi
+	sleep 0.1
+done
+#nvidiaCount=`echo $list | jq '[.[] | select(.brand == "N")] | length'`
+#amdCountgpuCount nvidiaCount=`echo $list | jq '[.[] | select(.brand == "N")] | length'`
+
