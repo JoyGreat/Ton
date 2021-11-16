@@ -824,7 +824,7 @@
         "@type": "pub.ed25519",
         "key": "iVQH71cymoNgnrhOT35tl/Y7k86X5iVuu5Vf68KmifQ="
       }
-    },
+    }
   ],
   "validator": {
     "@type": "validator.config.global",
